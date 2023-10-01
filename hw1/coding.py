@@ -12,6 +12,9 @@
 
 
 # This is the Gale-Shapley algorithm we shared on Github. We modified it so now it returns the number of proposals made instead of a stable matching.
+from itertools import permutations, product
+from collections import defaultdict
+
 def gale_shapley(men_preferences, women_preferences):
     n = len(men_preferences)
 
@@ -56,14 +59,32 @@ def gale_shapley(men_preferences, women_preferences):
 
 
 def instance_generator(women_preference):
-	"""
+    n = len(women_preference)
+    
+    # empty dictionary to be used later
+    proposals_count = defaultdict(int)
+
+    men_permutations = list(permutations(range(n))) #4! permutations of men pref
+    all_combinations = list(product(men_permutations, repeat=4)) #(4!)^4 combinations of those 4! permutations
+
+    for men_pref in all_combinations:
+        prop = gale_shapley(list(men_pref), women_preference)
+        proposals_count[prop] += 1
+
+    average_proposals = sum(k * v for k, v in proposals_count.items()) / len(all_combinations)
+
+    return proposals_count, average_proposals
+    
+    """
 	:women_preference: A list of lists that describe each women's preference
 	:return: A tuple (Dict, float). See details at the beginning of this file. 
 	"""
 	# TODO: your code goes here
-	pass
-
+	# pass
+    
 # This is an example of the input. 
 def toy_test():
 	women_preference = [[0,1,2,3],[2,1,0,3],[3,1,2,0],[3,2,1,0]]
 	print(instance_generator(women_preference))
+
+toy_test()
